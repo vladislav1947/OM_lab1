@@ -3,11 +3,8 @@
 Данные → модель → решение → независимая проверка → эксперименты → графики.
 """
 import os
-import sys
 
 import pandas as pd
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.data_gen import generate, save
 from src.experiments import compare_algorithms, run_all, star_benchmark

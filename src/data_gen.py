@@ -37,10 +37,3 @@ def save(stations, demand, data_dir='data'):
     """Выгружает данные варианта в CSV."""
     stations.to_csv(f'{data_dir}/stations.csv', index=False)
     demand.to_csv(f'{data_dir}/demand.csv', index=False)
-
-
-if __name__ == '__main__':
-    st, dm = generate()
-    save(st, dm)
-    print(st.round(1).to_string(index=False))
-    print(dm.round(1).to_string(index=False))
