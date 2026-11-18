@@ -24,10 +24,13 @@ def scenario(name, stations, demand, demand_scale=1.0, pmax_scale=1.0, log_path=
     st, dm = scaled(stations, demand, demand_scale, pmax_scale)
     prob = build(st, dm)
     res, dt = solve(prob, log_path=log_path, header=f'сценарий: {name}')
-    info = {'имя': name, 'статус': status_text(res), 'res': res, 'время': dt}
+    info = {'имя': name, 'статус': status_text(res), 'res': res, 'время': dt,
+            'затраты': np.nan}
     if res.status == 0:
         x = res.x.reshape(len(stations), -1)
         vtable, ok, obj = verify(x, st, dm)
+        # каждый допустимый сценарий обязан проходить независимую проверку
+        assert ok, f'сценарий «{name}»: независимая проверка нашла нарушения'
         pmax = st['pmax'].to_numpy()[:, None]
         info.update({'x': x, 'проверки': vtable, 'допустимо': ok, 'затраты': obj,
                      'сутки_станции': x.sum(axis=1),
@@ -92,7 +95,7 @@ def run_all(stations, demand, log_path=None):
         {'сценарий': i['имя'], 'статус': i['статус'].split(' —')[0],
          'затраты, руб.': round(i.get('затраты', np.nan), 2),
          'Δ к базе, руб.': round(i['затраты'] - base['затраты'], 2)
-         if 'затраты' in i else None}
+         if np.isfinite(i['затраты']) else None}
         for i in (base, deficit, stress)
     ])
 
