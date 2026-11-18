@@ -1,0 +1,104 @@
+
+===== сценарий: базовый =====
+Running HiGHS 1.12.0 (git hash: 4f96ee8): Copyright (c) 2025 HiGHS under MIT licence terms
+LP has 254 rows; 120 cols; 580 nonzeros
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+03, 2e+03]
+  Bound   [7e+01, 3e+02]
+  RHS     [6e+01, 6e+02]
+Presolving model
+116 rows, 120 cols, 304 nonzeros  0s
+70 rows, 120 cols, 212 nonzeros  0s
+Dependent equations search running on 24 equations with time limit of 1000.00s
+Dependent equations search removed 0 rows and 0 nonzeros in 0.00s (limit = 1000.00s)
+70 rows, 120 cols, 212 nonzeros  0s
+Presolve reductions: rows 70(-184); columns 120(-0); nonzeros 212(-368) 
+Solving the presolved LP
+Using EKK dual simplex solver - serial
+  Iteration        Objective     Infeasibilities num(sum)
+          0     0.0000000000e+00 Pr: 24(11075.5) 0s
+         24     1.1619786733e+07 Pr: 0(0) 0s
+
+Performed postsolve
+Solving the original LP from the solution after postsolve
+
+Model status        : Optimal
+Simplex   iterations: 24
+Objective value     :  1.1619786733e+07
+P-D objective error :  2.4044912939e-16
+HiGHS run time      :          0.01
+
+===== сценарий: дефицитный (+20% спроса) =====
+Running HiGHS 1.12.0 (git hash: 4f96ee8): Copyright (c) 2025 HiGHS under MIT licence terms
+LP has 254 rows; 120 cols; 580 nonzeros
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+03, 2e+03]
+  Bound   [7e+01, 3e+02]
+  RHS     [6e+01, 7e+02]
+Presolving model
+116 rows, 118 cols, 302 nonzeros  0s
+70 rows, 116 cols, 208 nonzeros  0s
+Dependent equations search running on 24 equations with time limit of 1000.00s
+Dependent equations search removed 0 rows and 0 nonzeros in 0.00s (limit = 1000.00s)
+70 rows, 116 cols, 208 nonzeros  0s
+Presolve reductions: rows 70(-184); columns 116(-4); nonzeros 208(-372) 
+Solving the presolved LP
+Using EKK dual simplex solver - serial
+  Iteration        Objective     Infeasibilities num(sum)
+          0     6.4058057396e+05 Pr: 24(13016.9) 0s
+         24     1.5272337177e+07 Pr: 0(0) 0s
+
+Performed postsolve
+Solving the original LP from the solution after postsolve
+
+Model status        : Optimal
+Simplex   iterations: 24
+Objective value     :  1.5272337177e+07
+P-D objective error :  0.0000000000e+00
+HiGHS run time      :          0.00
+
+===== сценарий: стрессовый (+20% спроса и −20% мощности) =====
+Running HiGHS 1.12.0 (git hash: 4f96ee8): Copyright (c) 2025 HiGHS under MIT licence terms
+LP has 254 rows; 120 cols; 580 nonzeros
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+03, 2e+03]
+  Bound   [5e+01, 2e+02]
+  RHS     [6e+01, 7e+02]
+Presolving model
+Problem status detected on presolve: Infeasible
+Model status        : Infeasible
+Objective value     :  0.0000000000e+00
+HiGHS run time      :          0.00
+
+===== сценарий: микро (+10 МВт·ч в час 19) =====
+Running HiGHS 1.12.0 (git hash: 4f96ee8): Copyright (c) 2025 HiGHS under MIT licence terms
+LP has 254 rows; 120 cols; 580 nonzeros
+Coefficient ranges:
+  Matrix  [1e+00, 1e+00]
+  Cost    [1e+03, 2e+03]
+  Bound   [7e+01, 3e+02]
+  RHS     [6e+01, 6e+02]
+Presolving model
+116 rows, 120 cols, 304 nonzeros  0s
+70 rows, 120 cols, 212 nonzeros  0s
+Dependent equations search running on 24 equations with time limit of 1000.00s
+Dependent equations search removed 0 rows and 0 nonzeros in 0.00s (limit = 1000.00s)
+70 rows, 120 cols, 212 nonzeros  0s
+Presolve reductions: rows 70(-184); columns 120(-0); nonzeros 212(-368) 
+Solving the presolved LP
+Using EKK dual simplex solver - serial
+  Iteration        Objective     Infeasibilities num(sum)
+          0     0.0000000000e+00 Pr: 24(11085.5) 0s
+         24     1.1642020190e+07 Pr: 0(0) 0s
+
+Performed postsolve
+Solving the original LP from the solution after postsolve
+
+Model status        : Optimal
+Simplex   iterations: 24
+Objective value     :  1.1642020190e+07
+P-D objective error :  2.3998992944e-16
+HiGHS run time      :          0.00
