@@ -8,18 +8,18 @@ import numpy as np
 HOURS = 24
 
 
-def build(stations, demand, demand_scale=1.0, pmax_scale=1.0):
+def build(stations, demand):
     """Собирает задачу в виде dict(c, A_eq, b_eq, A_ub, b_ub, bounds).
 
-    Сценарии задаются масштабами: demand_scale > 1 — рост спроса,
-    pmax_scale < 1 — деградация доступной мощности станций.
+    Сценарии реализуются масштабированием самих данных (спрос/мощность),
+    поэтому модель всегда строится из таблиц как есть.
     """
     n_s = len(stations)
     n = n_s * HOURS
     cost = stations['cost'].to_numpy()
-    pmax = stations['pmax'].to_numpy() * pmax_scale
+    pmax = stations['pmax'].to_numpy()
     ramp = stations['ramp'].to_numpy()
-    d = demand['demand'].to_numpy() * demand_scale
+    d = demand['demand'].to_numpy()
 
     c = np.repeat(cost, HOURS)  # руб./(МВт·ч) на каждую переменную
 
