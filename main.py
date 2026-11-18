@@ -54,7 +54,7 @@ def main():
           dict(zip(stations['name'], deficit['часы_на_максимуме'])))
     print(f"Стрессовый сценарий (+20% спроса, −20% мощности): {stress['статус']}")
     print('  конфликтующие часы (требуемая выработка > доступной мощности):\n'
-          + stress_conflict_table(r).to_string(index=False))
+          + r['conflict'].to_string(index=False))
 
     print('\nСверка теневых цен:\n' + r['checks'].round(2).to_string(index=False))
     print('\nЦенность расширения мощности (+1 МВт):\n'
@@ -78,7 +78,7 @@ def main():
     }).to_csv('output/solution.csv', index=False)
     base['проверки'].to_csv('output/verification.csv', index=False)
     r['scenarios'].to_csv('output/scenarios.csv', index=False)
-    stress_conflict_table(r).to_csv('output/stress_conflict.csv', index=False)
+    r['conflict'].to_csv('output/stress_conflict.csv', index=False)
     r['duals'].to_csv('output/duals.csv', index=False)
     r['capacity_value'].to_csv('output/capacity_value.csv', index=False)
     r['checks'].to_csv('output/shadow_check.csv', index=False)
@@ -95,12 +95,6 @@ def main():
           f"algos.csv, benchmark.csv, solver_log.txt, *.png)")
     print('Сводка проверки по типам ограничений:\n'
           + summarize(base['проверки']).round(9).to_string(index=False))
-
-
-def stress_conflict_table(r):
-    return r['conflict'].rename(columns={
-        'требуемая выработка 1.2·d_t, МВт·ч': 'требуемая выработка, МВт·ч',
-        'доступная мощность 0.8·Σpmax, МВт·ч': 'доступная мощность, МВт·ч'})
 
 
 if __name__ == '__main__':

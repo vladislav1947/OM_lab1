@@ -25,7 +25,9 @@ def scenario(name, stations, demand, demand_scale=1.0, pmax_scale=1.0, log_path=
     prob = build(st, dm)
     res, dt = solve(prob, log_path=log_path, header=f'сценарий: {name}')
     info = {'имя': name, 'статус': status_text(res), 'res': res, 'время': dt,
-            'затраты': np.nan}
+            'затраты': np.nan,
+            # масштабированные копии: артефакты строятся из них, а не из ×констант
+            'данные_спрос': dm, 'данные_станции': st}
     if res.status == 0:
         x = res.x.reshape(len(stations), -1)
         vtable, ok, obj = verify(x, st, dm)
@@ -52,13 +54,14 @@ def run_all(stations, demand, log_path=None):
 
     # Конфликт в стрессовом сценарии: часы, где требуемая выработка
     # превышает доступную мощность (баланс против ограничений мощности).
-    req = 1.2 * demand['demand'].to_numpy()
-    avail = 0.8 * stations['pmax'].sum()
+    # Числа берём из масштабированных копий стресса, а не из констант.
+    req = stress['данные_спрос']['demand'].to_numpy()
+    avail = stress['данные_станции']['pmax'].sum()
     hours = np.arange(len(req))[req > avail]
     conflict = pd.DataFrame({
         'час': hours,
-        'требуемая выработка 1.2·d_t, МВт·ч': req[hours].round(1),
-        'доступная мощность 0.8·Σpmax, МВт·ч': round(avail, 1),
+        'требуемая выработка, МВт·ч': req[hours].round(1),
+        'доступная мощность, МВт·ч': round(avail, 1),
         'дефицит, МВт·ч': (req[hours] - avail).round(1),
     })
 

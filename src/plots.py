@@ -30,13 +30,15 @@ def make_plots(stations, demand, r, out_dir='output'):
     plt.close(fig)
 
     # 2) спрос против доступной мощности: почему стресс недопустим
+    # кривые берём из масштабированных копий данных сценариев (не из ×констант)
     fig, ax = plt.subplots(figsize=(10, 5))
-    cap = stations['pmax'].sum()
+    d_stress = r['stress']['данные_спрос']['demand'].to_numpy()
+    cap_stress = r['stress']['данные_станции']['pmax'].sum()
     ax.plot(hours, d, 'k-', lw=2, label='спрос (база)')
-    ax.plot(hours, 1.2 * d, 'r--', lw=2, label='спрос ×1.2 (дефицит и стресс)')
-    ax.axhline(cap, color='g', ls='-', label='Σpmax (база)')
-    ax.axhline(0.8 * cap, color='g', ls=':', label='0.8·Σpmax (стресс)')
-    ax.fill_between(hours, 1.2 * d, 0.8 * cap, where=1.2 * d > 0.8 * cap,
+    ax.plot(hours, d_stress, 'r--', lw=2, label='спрос дефицитного/стрессового сценария')
+    ax.axhline(stations['pmax'].sum(), color='g', ls='-', label='Σpmax (база)')
+    ax.axhline(cap_stress, color='g', ls=':', label='мощность стрессового сценария')
+    ax.fill_between(hours, d_stress, cap_stress, where=d_stress > cap_stress,
                     color='red', alpha=0.25, label='дефицит мощности (стресс недопустим)')
     ax.set_xlabel('час')
     ax.set_ylabel('МВт·ч за час')
