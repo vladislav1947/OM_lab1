@@ -30,8 +30,9 @@ def main():
     base, deficit, stress = r['base'], r['deficit'], r['stress']
     print(f"\nБазовый сценарий: {base['статус']}")
     print(f"  суточные затраты: {base['затраты']:.2f} руб., время решения: {base['время']:.3f} с")
+    obj_diff = abs(base['res'].fun - base['затраты'])  # фактическая разница пересчёт/солвер
     print(f"  независимая проверка (допуск 1e-7): все ограничения в допуске — {base['допустимо']},"
-          f"\n  пересчёт цели: {base['затраты']:.2f} руб. (совпадает с солвером)")
+          f"\n  пересчёт цели: {base['затраты']:.2f} руб., |пересчёт − солвер| = {obj_diff:.2e} руб.")
 
     # решение в предметных терминах
     report_st = pd.DataFrame({
@@ -83,6 +84,8 @@ def main():
     bench.to_csv('output/benchmark.csv', index=False)
     with open('output/verification_summary.txt', 'w', encoding='utf-8') as f:
         f.write(summarize(base['проверки']).round(9).to_string(index=False))
+        f.write(f"\nПересчёт цели (NumPy): {base['затраты']:.6f} руб.\n"
+                f"|пересчёт − солвер (res.fun)|: {obj_diff:.2e} руб.\n")
 
     make_plots(stations, demand, r)
     benchmark_plots(bench)
