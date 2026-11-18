@@ -10,8 +10,8 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from src.data_gen import generate, save
-from src.experiments import compare_algorithms, run_all
-from src.plots import make_plots
+from src.experiments import compare_algorithms, run_all, star_benchmark
+from src.plots import benchmark_plots, make_plots
 from src.verify import summarize
 
 
@@ -64,6 +64,11 @@ def main():
     algos = compare_algorithms(stations, demand)
     print('\nДоп. задание, симплекс vs внутренняя точка:\n' + algos.to_string(index=False))
 
+    # 7) задание «со звёздочкой» № 2: бенчмарк на 10 задачах растущей размерности
+    bench = star_benchmark()
+    print('\nЗвёздочка № 2, бенчмарк симплекс/IPM на 10 задачах (5–14 станций, '
+          '24–96 ч):\n' + bench.to_string(index=False))
+
     # выгрузка артефактов
     pd.DataFrame({
         'час': demand['hour'],
@@ -78,14 +83,16 @@ def main():
     r['capacity_value'].to_csv('output/capacity_value.csv', index=False)
     r['checks'].to_csv('output/shadow_check.csv', index=False)
     algos.to_csv('output/algos.csv', index=False)
+    bench.to_csv('output/benchmark.csv', index=False)
     with open('output/verification_summary.txt', 'w', encoding='utf-8') as f:
         f.write(summarize(base['проверки']).round(9).to_string(index=False))
 
     make_plots(stations, demand, r)
+    benchmark_plots(bench)
 
     print(f"\nАртефакты: output/ (solution.csv, verification.csv, scenarios.csv, "
           f"stress_conflict.csv, duals.csv, capacity_value.csv, shadow_check.csv, "
-          f"algos.csv, solver_log.txt, *.png)")
+          f"algos.csv, benchmark.csv, solver_log.txt, *.png)")
     print('Сводка проверки по типам ограничений:\n'
           + summarize(base['проверки']).round(9).to_string(index=False))
 

@@ -74,3 +74,35 @@ def make_plots(stations, demand, r, out_dir='output'):
     fig.tight_layout()
     fig.savefig(f'{out_dir}/scenario_costs.png', dpi=150)
     plt.close(fig)
+
+
+def benchmark_plots(bench, out_dir='output'):
+    """Графики «звёздочки» № 2: время и итерации от размерности задачи."""
+    ds = bench[bench['метод'] == 'highs-ds']
+    ipm = bench[bench['метод'] == 'highs-ipm']
+    xs = ds['переменных'].to_numpy()
+
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.plot(xs, ds['время (медиана), с'], 'o-', label='симплекс (highs-ds)')
+    ax.plot(xs, ipm['время (медиана), с'], 's-', label='внутренняя точка (highs-ipm)')
+    ax.set_yscale('log')
+    ax.set_xlabel('число переменных')
+    ax.set_ylabel('время, с (лог. шкала)')
+    ax.set_title('Время решения от размерности (медиана 5 прогонов)')
+    ax.legend()
+    ax.grid(True, which='both', alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(f'{out_dir}/benchmark_time.png', dpi=150)
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(7, 4.5))
+    ax.plot(xs, ds['итерации'], 'o-', label='симплекс (highs-ds)')
+    ax.plot(xs, ipm['итерации'], 's-', label='внутренняя точка (highs-ipm)')
+    ax.set_xlabel('число переменных')
+    ax.set_ylabel('итерации')
+    ax.set_title('Число итераций от размерности задачи')
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(f'{out_dir}/benchmark_iters.png', dpi=150)
+    plt.close(fig)

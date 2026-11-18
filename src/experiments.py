@@ -6,6 +6,7 @@
 import numpy as np
 import pandas as pd
 
+from src.data_gen import SEED
 from src.model import build
 from src.solve import solve, status_text
 from src.verify import verify
@@ -120,4 +121,65 @@ def compare_algorithms(stations, demand, n_runs=3):
     dx = float(np.abs(sols['highs-ds'].x - sols['highs-ipm'].x).max())
     rows[0]['max|Δx| к IPM, МВт·ч'] = None
     rows[1]['max|Δx| к IPM, МВт·ч'] = dx
+    return pd.DataFrame(rows)
+
+
+# ===== Задание «со звёздочкой» № 2: бенчмарк симплекс против внутренней точки =====
+
+def benchmark_instances(n_tasks=10, seed=SEED):
+    """10 задач того же семейства (план выработки) растущей размерности.
+
+    Детерминировано по seed. Задача i (i = 0..9): станций 5+i, горизонт 24+8i ч.
+    Структура как у варианта: половина станций базовые (дешёвые, крупные,
+    маломанёвренные), остальные пиковые (дорогие, быстрые); спрос масштабируется
+    от суммарной мощности станций, вечерний пик ≈ 0.75·Σpmax — тот же режим
+    нагруженности, что и у варианта 6.
+    """
+    rng = np.random.default_rng(seed)
+    out = []
+    for i in range(n_tasks):
+        n_s = 5 + i
+        n_base = n_s // 2
+        hours = 24 + 8 * i
+        pmax = np.concatenate([rng.uniform(270, 330, n_base),
+                               rng.uniform(60, 80, n_s - n_base)])
+        cost = np.concatenate([rng.uniform(800, 1400, n_base),
+                               rng.uniform(2200, 3400, n_s - n_base)])
+        ramp = np.concatenate([rng.uniform(40, 80, n_base),
+                               rng.uniform(120, 200, n_s - n_base)])
+        stations = pd.DataFrame({
+            'station_id': np.arange(1, n_s + 1),
+            'name': [f'S{j + 1}' for j in range(n_s)],
+            'type': ['базовая'] * n_base + ['пиковая'] * (n_s - n_base),
+            'cost': cost, 'pmax': pmax, 'ramp': ramp,
+        })
+        cap = pmax.sum()
+        t = np.arange(hours)
+        demand = pd.DataFrame({
+            'hour': t,
+            'demand': cap * (0.6 + 0.15 * np.cos(2 * np.pi * (t - 0.8 * hours) / hours))
+                     + rng.uniform(-0.01 * cap, 0.01 * cap, hours),
+        })
+        out.append((stations, demand))
+    return out
+
+
+def star_benchmark(n_tasks=10, n_runs=5, seed=SEED):
+    """Бенчмарк: highs-ds (двойственный симплекс) против highs-ipm (IPX+crossover).
+
+    Для каждой задачи — медиана времени по n_runs прогонам и число итераций.
+    Возвращает длинный DataFrame (метод — строка).
+    """
+    rows = []
+    for i, (st, dm) in enumerate(benchmark_instances(n_tasks, seed)):
+        prob = build(st, dm)
+        for method in ('highs-ds', 'highs-ipm'):
+            times, res = [], None
+            for _ in range(n_runs):
+                res, dt = solve(prob, method=method)
+                times.append(dt)
+            rows.append({'задача': i + 1, 'станций': len(st), 'часов': len(dm),
+                         'переменных': prob['c'].size, 'метод': method,
+                         'время (медиана), с': round(float(np.median(times)), 4),
+                         'итерации': res.nit, 'статус': res.status})
     return pd.DataFrame(rows)
